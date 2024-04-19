@@ -29,40 +29,7 @@ from collections import deque
 to_np = lambda x: x.detach().cpu().numpy()
 
 #--- Orbit
-from omni.isaac.orbit.app import AppLauncher
-from datetime import datetime
-import carb
-from datetime import datetime
 
-# local imports
-import cli_args  # i
-# add argparse arguments
-parser = argparse.ArgumentParser(description="Train an RL agent with RSL-RL.")
-parser.add_argument("--video", action="store_true", default=False, help="Record videos during training.")
-parser.add_argument("--video_length", type=int, default=200, help="Length of the recorded video (in steps).")
-parser.add_argument("--video_interval", type=int, default=2000, help="Interval between video recordings (in steps).")
-parser.add_argument("--cpu", action="store_true", default=False, help="Use CPU pipeline.")
-parser.add_argument("--num_envs", type=int, default=None, help="Number of environments to simulate.")
-parser.add_argument("--task", type=str, default=None, help="Name of the task.")
-parser.add_argument("--seed", type=int, default=None, help="Seed used for the environment")
-# append RSL-RL cli arguments
-cli_args.add_rsl_rl_args(parser)
-# append AppLauncher cli args
-AppLauncher.add_app_launcher_args(parser)
-args_cli = parser.parse_args()
-args_cli.headless = True
-args_cli.num_envs = 10
-args_cli.task= 'Isaac-m545-v0'
-if ORBIT:
-    # launch omniverse app
-    app_launcher = AppLauncher(args_cli)
-    simulation_app = app_launcher.app
-
-    import gymnasium as gym
-    from omni.isaac.orbit.envs import RLTaskEnvCfg
-    import omni.isaac.contrib_tasks  # noqa: F401
-    import omni.isaac.orbit_tasks  # noqa: F401
-    from omni.isaac.orbit_tasks.utils import get_checkpoint_path, parse_env_cfg
 
 from dreamer import Dreamer, make_dataset, count_steps, make_env, make_env_ExcavationOrbit, multipage
 
@@ -76,7 +43,8 @@ def Benchmark_loaded_policy(config):
     train_dataset = None
     logdir = "./logdir/dmc_walker_walk"
     #logger = dreamer_tools.Logger(logdir, config.action_repeat * 0)
-    logger = dreamer_tools.WandbLogger(logdir, config, 0)
+    # Dummy
+    logger = dreamer_tools.Logger(logdir, config.action_repeat * 0)
     agent = Dreamer(
         obs,
         acts,

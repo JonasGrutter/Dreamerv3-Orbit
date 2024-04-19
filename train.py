@@ -49,7 +49,9 @@ def main(config):
     config.evaldir.mkdir(parents=True, exist_ok=True)
     step = count_steps(config.traindir)
     # step in logger is environmental step
-    logger = dreamer_tools.Logger(logdir, config.action_repeat * step)
+    #logger = dreamer_tools.Logger(logdir, config.action_repeat * step)
+    logger = dreamer_tools.WandbLogger(logdir,config, config.action_repeat * step)
+
 
     print("Create envs.")
     if config.offline_traindir:
@@ -159,7 +161,9 @@ def main(config):
                 )
                 train_envs.reset()
                 print("Benchmarking.")
-                Benchmark_current_policy(eval_policy, train_envs, )
+                return_dict = Benchmark_current_policy(eval_policy, train_envs, )
+                for key in return_dict.keys():
+                    logger.scalar(key, return_dict[key])
                 train_envs.reset()
 
             else:
@@ -367,6 +371,17 @@ def Benchmark_current_policy(eval_policy, eval_envs, num_steps = 200):
 
     for name in eval_envs.env.termination_excavation.neg_term_names:
         log_and_print_stats("len neg_" + name, ep_len_counts["neg_" + name], num_data, error_dict)
+
+    # Return a dicitonnary of values
+    return_dict = {}
+    i = 0
+    for key, value in eval_envs.env.termination_excavation.episode_neg_term_counts.items():
+        return_dict["Benchmark/ "+key] = value[i]
+        i +=1
+    return_dict['"Benchmark/ full_term'] = full_term
+    return_dict['"Benchmark/ close_term'] = close_term
+        
+    return  return_dict
 
 
 if __name__ == "__main__":

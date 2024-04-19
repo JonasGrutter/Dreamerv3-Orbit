@@ -207,6 +207,10 @@ def simulate(
             results = [r() for r in results]
             obs, reward, done = zip(*[p[:3] for p in results])
         
+        if ORBIT and is_eval:
+             for key in extras['log']:
+                logger.scalar("Eval/ " + key, extras['log'][key])
+
         
         obs = list(obs)
         reward = list(reward)
@@ -306,6 +310,11 @@ def simulate(
                         logger.scalar(f"eval_episodes", len(eval_scores))
                         logger.write(step=logger.step)
                         eval_done = True
+                    if ORBIT:
+                        logger.scalar(f"eval_return", score)
+                        logger.scalar(f"eval_length", length)
+                        logger.scalar(f"eval_episodes", len(eval_scores))
+
     if is_eval:
         # keep only last item for saving memory. this cache is used for video_pred later
         while len(cache) > 1:
@@ -1065,6 +1074,7 @@ def recursively_load_optim_state_dict(obj, optimizers_state_dicts):
             obj_now = getattr(obj_now, key)
         obj_now.load_state_dict(state_dict)
 
+from utils.wandbutils import WandbSummaryWriter
 class WandbLogger:
     def __init__(self, logdir, config, step):
         dict_config = vars(config)
