@@ -1064,3 +1064,31 @@ def recursively_load_optim_state_dict(obj, optimizers_state_dicts):
         for key in keys:
             obj_now = getattr(obj_now, key)
         obj_now.load_state_dict(state_dict)
+
+class WandbLogger:
+    def __init__(self, logdir, config, step):
+        dict_config = vars(config)
+        dict_config['wandb_project'] = 'Dreamer_m545_new'
+        self.writer = WandbSummaryWriter(log_dir=logdir, flush_secs=10,cfg=dict_config)
+        self.step = step
+
+    def scalar(self, name, value, step=None):
+        # Log scalar values
+        self.writer.add_scalar(name, value, global_step=step)
+
+    def image(self, name, value, step=None):
+        # Currently, logging images and videos directly through WandbSummaryWriter isn't supported.
+        # You might want to implement it or log directly using wandb.
+        pass  # Implement if needed, using wandb.log() or through enhancements in WandbSummaryWriter
+
+    def video(self, name, value, fps=30, step=None):
+        # Similar to images, implement this if you need video logging.
+        pass  # Implement if needed
+
+    def write(self, fps=False, step=False):
+        # The flush mechanism is handled internally within WandbSummaryWriter and wandb.
+        pass  # You might not need this method.
+
+    def close(self):
+        # Properly finalize the wandb run
+        self.writer.stop()
